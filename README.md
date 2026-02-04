@@ -59,7 +59,7 @@ The system follows a modular client-server architecture:
 ## 📸 Dashboard Preview
 
 ![Dashboard](screenshots/dashboard.png)
-![Devices](screenshots/dashboard.png)
+![Devices](screenshots/dashboard2.png)
 
 ---
 
