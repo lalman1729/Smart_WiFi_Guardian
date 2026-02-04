@@ -1,0 +1,10 @@
+interface:
+  managed: wlan0
+  monitor: wlan0mon
+
+detection_thresholds:
+  deauth_limit: 20
+  beacon_interval_anomaly: true
+
+logging:
+  alert_log: logs/alerts.log

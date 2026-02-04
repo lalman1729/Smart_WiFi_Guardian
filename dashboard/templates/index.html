@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Smart Wi-Fi Guardian</title>
+    <style>
+        body {
+            background-color: #0f172a;
+            color: #e5e7eb;
+            font-family: Arial, sans-serif;
+        }
+        h1 {
+            color: #22c55e;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 10px;
+            border-bottom: 1px solid #334155;
+        }
+        .LOW { color: #22c55e; }
+        .MEDIUM { color: #eab308; }
+        .HIGH { color: #ef4444; }
+        .CRITICAL { color: #dc2626; font-weight: bold; }
+
+    </style>
+
+<h2>Connected Devices</h2>
+<ul id="deviceList"></ul>
+
+<div id="deviceDetails" style="display:none;">
+  <h3 id="deviceTitle"></h3>
+  <canvas id="deviceChart"></canvas>
+</div>
+
+<script src="/static/js/device.js"></script>
+
+
+</head>
+<body>
+
+<h1>🛡 Smart Wi-Fi Guardian — CCTV Dashboard</h1>
+<p>Real-time Wireless Threat Monitoring</p>
+
+<table>
+    <tr>
+        <th>Time</th>
+        <th>Event</th>
+        <th>Severity</th>
+        <th>Details</th>
+    </tr>
+
+    {% for e in events %}
+    <tr>
+        <td>{{ e.time }}</td>
+        <td>{{ e.type }}</td>
+        <td class="{{ e.severity }}">{{ e.severity }}</td>
+        <td>{{ e.details }}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+</body>
+</html>

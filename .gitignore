@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.log
+
+# Virtual env
+venv/
+.env
+
+# Flask
+instance/
+*.sqlite3
+
+# OS / Editor
+.DS_Store
+.vscode/
+.idea/
+
+# Node (if frontend builds later)
+node_modules/
+
+# Kali / temp
+*.cap
+*.pcap
+*.tmp

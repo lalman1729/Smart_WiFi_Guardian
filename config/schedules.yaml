@@ -1,0 +1,12 @@
+sleep_mode:
+  start: "22:00"
+  end: "06:00"
+  block:
+    - social
+    - adult
+
+study_time:
+  start: "17:00"
+  end: "20:00"
+  block:
+    - social

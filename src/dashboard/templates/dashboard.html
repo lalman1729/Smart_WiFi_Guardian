@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Smart Wi-Fi Guardian – Digital Wellbeing</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<h1>📊 Digital Wellbeing Dashboard</h1>
+
+<h2>Usage by Category</h2>
+<canvas id="categoryChart" width="400" height="400"></canvas>
+
+<h2>Top Visited Domains</h2>
+<canvas id="domainChart" width="400" height="400"></canvas>
+
+<script>
+const categoryLabels = {{ categories | safe }};
+const categoryData = {{ category_values | safe }};
+
+new Chart(document.getElementById("categoryChart"), {
+    type: "pie",
+    data: {
+        labels: categoryLabels,
+        datasets: [{
+            data: categoryData
+        }]
+    }
+});
+
+const domainLabels = {{ top_domains | safe }};
+const domainData = {{ top_counts | safe }};
+
+new Chart(document.getElementById("domainChart"), {
+    type: "bar",
+    data: {
+        labels: domainLabels,
+        datasets: [{
+            label: "Visits",
+            data: domainData
+        }]
+    }
+});
+</script>
+
+</body>
+</html>
+

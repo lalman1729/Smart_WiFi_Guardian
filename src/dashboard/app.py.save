@@ -1,0 +1,137 @@
+"""
+from flask import request, jsonify
+import subprocess
+import re
+
+from dashboard.arp_scanner import scan_router
+
+from flask import jsonify
+
+from flask import Flask, render_template, jsonify
+from dashboard.parser import parse_dns_log
+"""
+
+from flask import Flask, render_template, request, jsonify
+from dashboard.arp_scanner import scan_router
+from dashboard.parser import parse_dns_log
+
+
+
+
+
+
+
+
+app = Flask(__name__)
+
+@app.route("/")
+def index():
+    return render_template("index.html")
+
+@app.route("/api/stats")
+def stats():
+
+    categories, domains, devices = parse_dns_log()
+    return jsonify({
+        "total_requests": sum(domains.values()),
+        "blocked_domains": 0,
+        "devices": list(devices.keys()),
+        "categories": categories,
+        "domains": domains
+    })
+
+
+
+@app.route("/api/device/<device_ip>")
+def device_details(device_ip):
+    _, _, devices = parse_dns_log()
+    return jsonify(devices.get(device_ip, {}))
+
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=8080, debug=True)
+
+
+
+
+
+@app.route("/")
+def index():
+    return render_template("index.html")
+
+
+
+@app.route("/api/scan", methods=["POST"])
+def api_scan():
+    data = request.get_json(force=True)
+    router_ip = data.get("router_ip")
+
+    if not router_ip:
+        return jsonify({"error": "router_ip missing"}), 400
+
+    try:
+        devices = scan_router(router_ip)
+        return jsonify({
+            "router_ip": router_ip,
+            "devices": devices
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+
+@app.route("/api/scan", methods=["POST"])
+def scan_network():
+    data = request.get_json()
+    router_ip = data.get("router_ip")
+
+    if not router_ip:
+        return jsonify({"error": "Router IP required"}), 400
+
+    # Detect subnet (example: 10.10.128.0/24)
+    subnet = ".".join(router_ip.split(".")[:3]) + ".0/24"
+
+    try:
+        result = subprocess.check_output(
+            ["arp-scan", "--localnet"],
+            stderr=subprocess.DEVNULL
+        ).decode()
+
+        devices = []
+        for line in result.splitlines():
+            match = re.match(r"(\d+\.\d+\.\d+\.\d+)\s+([0-9a-fA-F:]{17})", line)                """   re.match(r"(\d+\.\d+\.\d+\.\d+)\s+([\da-fA-F:]{17})", line)"""
+            if match:
+                devices.append(match.group(1))
+
+        return jsonify({"devices": devices})
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+
+
+
+
+
+
+"""
+@app.route("/")
+def dashboard():
+    category_stats, domain_stats = analyze_dns()
+
+
+    categories = list(category_stats.keys())
+    category_values = list(category_stats.values())
+
+    top_domains = [d[0] for d in domain_stats.most_common(5)]
+    top_counts = [d[1] for d in domain_stats.most_common(5)]
+
+    return render_template(
+        "dashboard.html",
+        categories=categories,
+        category_values=category_values,
+        top_domains=top_domains,
+        top_counts=top_counts
+    )
+"""

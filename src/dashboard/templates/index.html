@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Smart Wi-Fi Guardian</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<div class="container">
+
+
+
+<h2>Connected Devices</h2>
+
+<div class="router-input">
+    <input type="text" id="routerIp" placeholder="Enter Router IP (e.g. 192.168.132.1)">
+    <button onclick="scanRouter()">Scan Network</button>
+</div>
+
+
+
+
+
+<ul id="deviceList"></ul>
+
+<h2>Device-wise Activity</h2>
+<table border="1" cellpadding="6">
+  <thead>
+    <tr>
+      <th>Domain</th>
+      <th>Hits</th>
+    </tr>
+  </thead>
+  <tbody id="deviceTable"></tbody>
+</table>
+
+
+
+
+    <h1>🛡 Smart Wi-Fi Guardian Dashboard</h1>
+
+    <!-- KPI CARDS -->
+    <div class="cards">
+        <div class="card">
+            <h3>Total Requests</h3>
+            <p id="totalRequests">0</p>
+        </div>
+        <div class="card">
+            <h3>Blocked Domains</h3>
+            <p id="blockedDomains">0</p>
+        </div>
+
+
+       <div class="card">
+  <h3>Active Devices</h3>
+  <p id="activeDevices">0</p>
+</div>
+
+        <div class="card danger">
+            <h3>Threat Level</h3>
+            <p id="threatLevel">LOW</p>
+        </div>
+    </div>
+
+    <!-- CHARTS -->
+    <div class="charts">
+        <div class="chart-box">
+            <h3>Usage by Category</h3>
+            <canvas id="categoryChart"></canvas>
+       
+ </div>
+
+<div class="card">
+  <h3>Top Visited Domains</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Domain</th>
+        <th>Hits</th>
+      </tr>
+    </thead>
+    <tbody id="topDomainsTable"></tbody>
+  </table>
+</div>
+
+
+<!--       
+<div class="card">
+  <h3>Top Visited Domains</h3>
+  <table id="domainsTable" style="width:100%; margin-top:15px;">
+    <thead>
+      <tr>
+        <th align="left">Domain</th>
+        <th align="right">Hits</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</div>
+
+</div>
+-->
+
+<!--
+<div class="card" id="devicePanel" style="display:none;">
+  <h3>Device-wise Activity</h3>
+  <p><b>Device IP:</b> <span id="deviceIp"></span></p>
+
+  <table style="width:100%; margin-top:10px;">
+    <thead>
+      <tr>
+        <th align="left">Domain</th>
+        <th align="right">Hits</th>
+      </tr>
+    </thead>
+    <tbody id="deviceTable"></tbody>
+  </table>
+</div>
+    
+
+</div>
+-->
+
+
+
+<span id="totalRequests">0</span>
+<span id="blockedDomains">0</span>
+<span id="activeDevices">0</span>
+<span id="threatLevel">LOW</span>
+
+<canvas id="categoryChart"></canvas>
+
+<table>
+  <tbody id="topDomainsTable"></tbody>
+</table>
+ 
+
+<!--
+<h2>Connected Devices</h2>
+<ul id="deviceList"></ul>
+
+<h2>Device Activity</h2>
+<table border="1" cellpadding="5">
+  <thead>
+    <tr>
+      <th>Domain</th>
+      <th>Hits</th>
+    </tr>
+  </thead>
+  <tbody id="deviceTable"></tbody>
+</table>
+
+-->
+
+
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"> </script>
+
+
+<script>
+
+fetch("/api/stats")
+  .then(res => res.json())
+  .then(data => {
+    const table = document.querySelector("#domainsTable tbody");
+    table.innerHTML = "";
+
+    const sortedDomains = Object.entries(data.domains)
+      .sort((a, b) => b[1] - a[1]);
+
+    for (const [domain, count] of sortedDomains) {
+  const row = document.createElement("tr");
+
+  row.innerHTML = `
+    <td style="cursor:pointer;color:#4da3ff;">
+      ${domain}
+    </td>
+    <td align="right">${count}</td>
+  `;
+
+  row.onclick = () => loadDeviceData(domain);
+  table.appendChild(row);
+}
+  });
+
+
+</script>
+
+
+
+
+
+<script>
+function loadDeviceData(domain) {
+  fetch("/api/stats")
+    .then(res => res.json())
+    .then(stats => {
+      const deviceIp = stats.devices[0]; // currently one device
+      document.getElementById("deviceIp").innerText = deviceIp;
+
+      fetch(`/api/device/${deviceIp}`)
+        .then(res => res.json())
+        .then(data => {
+          const table = document.getElementById("deviceTable");
+          table.innerHTML = "";
+
+          for (const [d, hits] of Object.entries(data)) {
+            if (d === domain) {
+              const row = document.createElement("tr");
+              row.innerHTML = `
+                <td>${d}</td>
+                <td align="right">${hits}</td>
+              `;
+              table.appendChild(row);
+            }
+          }
+
+          document.getElementById("devicePanel").style.display = "block";
+        });
+    });
+}
+
+</scrit>
+
+
+
+
+
+<script>
+console.log("Dashboard JS loaded");
+
+async function refreshStats() {
+  console.log("Refreshing stats...");
+
+  try {
+    const res = await fetch("/api/stats");
+    const data = await res.json();
+
+    document.getElementById("totalRequests").innerText = data.total_requests;
+    document.getElementById("blockedDomains").innerText = data.blocked_domains;
+    document.getElementById("activeDevices").innerText = data.devices.length;
+
+    // Threat level (temporary numeric → text)
+    document.getElementById("threatLevel").innerText =
+      data.devices.length > 0 ? "LOW" : "NONE";
+
+    const table = document.getElementById("domainsTable");
+    table.innerHTML = "";
+
+    Object.entries(data.domains)
+      .sort((a,b) => b[1] - a[1])
+      .slice(0,5)
+      .forEach(([domain, hits]) => {
+        table.innerHTML += `<tr><td>${domain}</td><td>${hits}</td></tr>`;
+      });
+
+  } catch (err) {
+    console.error("Auto-refresh error:", err);
+  }
+}
+
+setInterval(refreshStats, 5000);
+refreshStats();
+</script>
+
+
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  console.log("Dashboard JS loaded ✔");
+
+  async function refreshStats() {
+    console.log("Refreshing dashboard data...");
+
+    try {
+      const res = await fetch("/api/stats");
+      const data = await res.json();
+
+      document.getElementById("totalRequests").textContent =
+        data.total_requests ?? 0;
+
+      document.getElementById("blockedDomains").textContent =
+        data.blocked_domains ?? 0;
+
+      document.getElementById("activeDevices").textContent =
+        data.devices ? data.devices.length : 0;
+
+      document.getElementById("threatLevel").textContent =
+        data.devices && data.devices.length > 0 ? "LOW" : "NONE";
+
+      const table = document.getElementById("domainsTable");
+      table.innerHTML = "";
+
+      Object.entries(data.domains || {})
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 5)
+        .forEach(([domain, hits]) => {
+          const row = document.createElement("tr");
+          row.innerHTML = `<td>${domain}</td><td>${hits}</td>`;
+          table.appendChild(row);
+        });
+
+    } catch (err) {
+      console.error("Dashboard refresh failed:", err);
+    }
+  }
+
+  refreshStats();
+  setInterval(refreshStats, 5000);
+});
+
+function fetchStats() {
+  fetch("/api/stats")
+    .then(res => res.json())
+    .then(data => {
+      console.log("FETCH CALLED");
+      console.log(data);
+
+      document.getElementById("totalRequests").textContent =
+        data.total_requests ?? 0;
+    });
+}
+
+</script>
+
+
+</body>
+</html>
+
+
+
+
+
