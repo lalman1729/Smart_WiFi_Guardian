@@ -29,3 +29,10 @@ Smart Wi-Fi Guardian is a Flask-based network monitoring dashboard designed to s
 - Linux (Kali compatible)
 
 ## 📂 Project Structure
+
+
+
+## 📸 Dashboard Preview
+
+![Dashboard](screenshots/dashboard.png)
+![Devices](screenshots/dashboard2.png)
