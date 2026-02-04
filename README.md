@@ -1,3 +1,9 @@
+## 🎯 Why Smart Wi-Fi Guardian?
+This project was built to explore real-time network visibility, device behavior tracking,
+and security analytics for local Wi-Fi networks using lightweight tools.
+
+
+
 Smart Wi-Fi Guardian
 ===================
 
